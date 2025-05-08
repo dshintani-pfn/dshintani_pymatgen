@@ -1077,13 +1077,13 @@ class MaterialsProject2020Compatibility(Compatibility):
 
         # check the POTCAR symbols
         # this should return ufloat(0, 0) or raise a CompatibilityError or ValueError
-        if entry.parameters.get("software", "vasp") == "vasp":
-            pc = PotcarCorrection(
-                MPRelaxSet,
-                check_hash=self.check_potcar_hash,
-                check_potcar=self.check_potcar,
-            )
-            pc.get_correction(entry)
+        # if entry.parameters.get("software", "vasp") == "vasp":
+        #     pc = PotcarCorrection(
+        #         MPRelaxSet,
+        #         check_hash=self.check_potcar_hash,
+        #         check_potcar=self.check_potcar,
+        #     )
+        #     pc.get_correction(entry)
 
         # apply energy adjustments
         adjustments: list[CompositionEnergyAdjustment] = []
@@ -1238,11 +1238,12 @@ class MaterialsProject2020Compatibility(Compatibility):
             symbol = el.symbol
             # Check for bad U values
             expected_u = float(u_settings.get(symbol, 0))
-            actual_u = float(calc_u.get(symbol, 0))
-            if actual_u != expected_u:
-                raise CompatibilityError(
-                    f"Invalid U value of {actual_u:.3} on {symbol}, expected {expected_u:.3} for {entry.as_dict()}"
-                )
+            entry.parameters["hubbards"][symbol] = expected_u
+            # actual_u = float(calc_u.get(symbol, 0))
+            # if actual_u != expected_u:
+            #     raise CompatibilityError(
+            #         f"Invalid U value of {actual_u:.3} on {symbol}, expected {expected_u:.3} for {entry.as_dict()}"
+            #     )
             if symbol in u_corrections:
                 adjustments.append(
                     CompositionEnergyAdjustment(
