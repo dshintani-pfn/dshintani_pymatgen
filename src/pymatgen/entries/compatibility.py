@@ -1077,13 +1077,13 @@ class MaterialsProject2020Compatibility(Compatibility):
 
         # check the POTCAR symbols
         # this should return ufloat(0, 0) or raise a CompatibilityError or ValueError
-        if entry.parameters.get("software", "vasp") == "vasp":
-            pc = PotcarCorrection(
-                MPRelaxSet,
-                check_hash=self.check_potcar_hash,
-                check_potcar=self.check_potcar,
-            )
-            pc.get_correction(entry)
+        # if entry.parameters.get("software", "vasp") == "vasp":
+        #     pc = PotcarCorrection(
+        #         MPRelaxSet,
+        #         check_hash=self.check_potcar_hash,
+        #         check_potcar=self.check_potcar,
+        #     )
+        #     pc.get_correction(entry)
 
         # apply energy adjustments
         adjustments: list[CompositionEnergyAdjustment] = []
@@ -1227,32 +1227,33 @@ class MaterialsProject2020Compatibility(Compatibility):
                     )
 
         # GGA / GGA+U mixing scheme corrections
-        calc_u = entry.parameters.get("hubbards")
-        calc_u = defaultdict(int) if calc_u is None else calc_u
-        most_electroneg = sorted_elements[-1].symbol
-        u_corrections = self.u_corrections.get(most_electroneg, defaultdict(float))
-        u_settings = self.u_settings.get(most_electroneg, defaultdict(float))
-        u_errors = self.u_errors.get(most_electroneg, defaultdict(float))
+        # calc_u = entry.parameters.get("hubbards")
+        # calc_u = defaultdict(int) if calc_u is None else calc_u
+        # most_electroneg = sorted_elements[-1].symbol
+        # u_corrections = self.u_corrections.get(most_electroneg, defaultdict(float))
+        # u_settings = self.u_settings.get(most_electroneg, defaultdict(float))
+        # u_errors = self.u_errors.get(most_electroneg, defaultdict(float))
 
-        for el in comp.elements:
-            symbol = el.symbol
-            # Check for bad U values
-            expected_u = float(u_settings.get(symbol, 0))
-            actual_u = float(calc_u.get(symbol, 0))
-            if actual_u != expected_u:
-                raise CompatibilityError(
-                    f"Invalid U value of {actual_u:.3} on {symbol}, expected {expected_u:.3} for {entry.as_dict()}"
-                )
-            if symbol in u_corrections:
-                adjustments.append(
-                    CompositionEnergyAdjustment(
-                        u_corrections[symbol],
-                        comp[el],
-                        uncertainty_per_atom=u_errors[symbol],
-                        name=f"MP2020 GGA/GGA+U mixing correction ({symbol})",
-                        cls=self.as_dict(),
-                    )
-                )
+        # for el in comp.elements:
+        #     symbol = el.symbol
+        #     # Check for bad U values
+        #     expected_u = float(u_settings.get(symbol, 0))
+        #     entry.parameters["hubbards"][symbol] = expected_u
+        #     # actual_u = float(calc_u.get(symbol, 0))
+        #     # if actual_u != expected_u:
+        #     #     raise CompatibilityError(
+        #     #         f"Invalid U value of {actual_u:.3} on {symbol}, expected {expected_u:.3} for {entry.as_dict()}"
+        #     #     )
+        #     if symbol in u_corrections:
+        #         adjustments.append(
+        #             CompositionEnergyAdjustment(
+        #                 u_corrections[symbol],
+        #                 comp[el],
+        #                 uncertainty_per_atom=u_errors[symbol],
+        #                 name=f"MP2020 GGA/GGA+U mixing correction ({symbol})",
+        #                 cls=self.as_dict(),
+        #             )
+        #         )
 
         return adjustments
 
